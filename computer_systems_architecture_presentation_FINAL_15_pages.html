@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Computer Systems Architecture — Interactive Presentation</title>
+<style>
+  :root{
+    --bg:#050914;
+    --panel:#0b1224cc;
+    --panel-2:#0f1831;
+    --text:#eef6ff;
+    --muted:#9db0c8;
+    --cyan:#42e8ff;
+    --blue:#5f7cff;
+    --violet:#a56dff;
+    --green:#55f2a4;
+    --pink:#ff68c5;
+    --line:#1d3157;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(66,232,255,.12), transparent 28%),
+      radial-gradient(circle at 85% 15%, rgba(165,109,255,.11), transparent 28%),
+      radial-gradient(circle at 65% 85%, rgba(95,124,255,.12), transparent 30%),
+      linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:auto,auto,auto,34px 34px,34px 34px;
+  }
+  .deck{position:relative;width:100vw;height:100vh}
+  .slide{
+    position:absolute;inset:0;padding:7vh 7vw 9vh;
+    display:grid;align-content:center;gap:2rem;
+    opacity:0;transform:translateX(80px) scale(.985);
+    pointer-events:none;
+    transition:opacity .55s ease,transform .65s cubic-bezier(.2,.8,.2,1);
+  }
+  .slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}
+  .slide.prev{transform:translateX(-80px) scale(.985)}
+  .eyebrow{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+  h1{font-size:clamp(2.6rem,6vw,6.4rem);line-height:.98;margin:.2rem 0;font-weight:900;letter-spacing:-.045em}
+  h2{font-size:clamp(2rem,4.2vw,4.7rem);line-height:1.02;margin:0;font-weight:850;letter-spacing:-.035em}
+  h3{font-size:1.2rem;margin:0 0 .7rem}
+  p{color:var(--muted);font-size:clamp(1rem,1.4vw,1.35rem);line-height:1.55;margin:.4rem 0}
+  .accent{background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:4vw;align-items:center}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+  .card{
+    position:relative;background:linear-gradient(180deg,rgba(14,25,49,.82),rgba(8,14,28,.86));
+    border:1px solid rgba(112,153,221,.2);border-radius:22px;padding:1.25rem;
+    box-shadow:0 18px 60px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+    overflow:hidden
+  }
+  .card::after{content:"";position:absolute;inset:auto -20% -60% 35%;height:180px;background:radial-gradient(circle,rgba(66,232,255,.12),transparent 68%)}
+  .big-number{font-size:2.6rem;font-weight:900;color:var(--cyan)}
+  .chips{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.2rem}
+  .chip{padding:.55rem .85rem;border-radius:999px;background:#0e1b35;border:1px solid #1f3964;color:#cfe5ff;font-weight:700;font-size:.9rem}
+  .controls{
+    position:fixed;right:10px;bottom:9px;display:flex;align-items:center;gap:.25rem;
+    z-index:20;background:rgba(5,9,20,.36);backdrop-filter:blur(8px);
+    border:1px solid rgba(73,105,151,.16);border-radius:8px;padding:3px
+  }
+  button{
+    border:1px solid #223856;background:#091121;color:#d7e5f6;border-radius:6px;
+    padding:.24rem .38rem;font-size:.62rem;font-weight:750;cursor:pointer;
+    transition:.2s ease;opacity:.76
+  }
+  button:hover{border-color:var(--cyan);transform:translateY(-1px);box-shadow:0 0 24px rgba(66,232,255,.13)}
+  .progress{position:fixed;left:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--cyan),var(--violet));width:10%;transition:width .45s ease;z-index:30}
+  .count{position:fixed;right:16px;top:12px;color:#687f9e;font-size:.65rem;font-weight:800;letter-spacing:.08em;z-index:20;opacity:.65}
+  .hint{position:fixed;left:24px;top:18px;color:#6f86a5;font-size:.78rem;z-index:20}
+  .hero-orbit{position:relative;width:min(38vw,470px);aspect-ratio:1;margin:auto}
+  .orbit{position:absolute;border:1px solid rgba(87,143,218,.3);border-radius:50%;inset:8%;animation:spin 14s linear infinite}
+  .orbit:nth-child(2){inset:20%;animation-duration:10s;animation-direction:reverse}
+  .core{
+    position:absolute;inset:34%;border-radius:24px;background:linear-gradient(135deg,#112347,#091224);
+    border:1px solid #2a5288;box-shadow:0 0 50px rgba(66,232,255,.22), inset 0 0 24px rgba(66,232,255,.08);
+    display:grid;place-items:center;font-weight:900;font-size:1.35rem;letter-spacing:.08em
+  }
+  .dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
+  .d1{top:7%;left:48%}.d2{right:10%;top:53%;background:var(--violet);box-shadow:0 0 18px var(--violet)}
+  .d3{left:18%;bottom:15%;background:var(--green);box-shadow:0 0 18px var(--green)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulse{50%{transform:scale(1.06);filter:brightness(1.18)}}
+  @keyframes flow{to{stroke-dashoffset:-32}}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .active .reveal{animation:rise .65s ease both}
+  .active .r2{animation-delay:.12s}.active .r3{animation-delay:.24s}.active .r4{animation-delay:.36s}
+  .flowbox{display:flex;gap:.8rem;align-items:center;justify-content:center;flex-wrap:wrap}
+  .node{padding:1rem 1.2rem;min-width:120px;text-align:center;border-radius:18px;background:#0e1931;border:1px solid #25446f;font-weight:850}
+  .arrow{color:var(--cyan);font-size:1.8rem;animation:pulse 1.6s ease-in-out infinite}
+  .cpu-gpu{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  .cores{display:grid;gap:8px;margin-top:1rem}
+  .cpucores{grid-template-columns:repeat(4,1fr)}
+  .gpucores{grid-template-columns:repeat(10,1fr)}
+  .mini-core{height:24px;border-radius:6px;background:linear-gradient(135deg,#173456,#0d223d);border:1px solid #2e5684}
+  .gpucores .mini-core{height:14px;background:linear-gradient(135deg,#2a1f55,#161238);border-color:#5d42a0}
+  .bar{height:10px;border-radius:99px;background:#15233b;overflow:hidden;margin:.6rem 0}
+  .bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:inherit}
+  .architecture{
+    width:100%;max-width:760px;margin:auto;background:#081225;border:1px solid #1d3760;border-radius:24px;padding:1.2rem
+  }
+  svg{width:100%;height:auto;display:block}
+  .flowline{stroke:var(--cyan);stroke-width:3;stroke-dasharray:8 8;animation:flow 1.6s linear infinite;fill:none}
+  .matrix{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}
+  .cell{aspect-ratio:1;border-radius:7px;background:#10233c;border:1px solid #244c79;animation:pulse 2.4s ease-in-out infinite}
+  .cell:nth-child(3n){animation-delay:.3s}.cell:nth-child(4n){animation-delay:.7s}.cell:nth-child(5n){animation-delay:1.1s}
+  .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .timeline .card{min-height:185px}
+  .year{color:var(--cyan);font-weight:900;letter-spacing:.08em}
+  .summary-list{display:grid;gap:.9rem}
+  .summary-item{display:flex;gap:.9rem;align-items:flex-start;font-size:1.15rem;color:#d6e7fb}
+  .check{width:28px;height:28px;flex:0 0 28px;border-radius:8px;display:grid;place-items:center;background:#0b2b2d;border:1px solid #1d6c62;color:var(--green);font-weight:900}
+  .speaker-note{
+    position:absolute;right:7vw;bottom:7vh;font-size:.78rem;color:#617894;border:1px solid #1b2a45;border-radius:10px;padding:.5rem .7rem;background:#07101eaa
+  }
+  @media (max-width:900px){
+    .slide{padding:9vh 6vw 11vh}
+    .grid2,.cpu-gpu,.timeline,.grid3{grid-template-columns:1fr}
+    .hero-orbit{width:min(60vw,380px)}
+    h1{font-size:clamp(2.5rem,10vw,4.4rem)}
+    h2{font-size:clamp(2rem,8vw,3.6rem)}
+    .timeline .card{min-height:auto}
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <section class="slide active">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">Computer Systems Architecture</div>
+        <h1 class="reveal r2">Inside the <span class="accent">Brain of a Computer</span></h1>
+        <p class="reveal r3">How CPU, memory, storage, GPU and buses work together to turn instructions into results.</p>
+      </div>
+      <div class="hero-orbit reveal r3">
+        <div class="orbit"></div><div class="orbit"></div>
+        <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
+        <div class="core">CPU</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">01 — The Big Picture</div>
+      <h2 class="reveal r2">What is computer architecture?</h2>
+      <p class="reveal r3">It is the way computer components are organized and connected so they can process data efficiently.</p>
+    </div>
+    <div class="grid3">
+      <div class="card reveal r2"><div class="big-number">Input</div><p>Keyboard, mouse, camera and sensors send data into the system.</p></div>
+      <div class="card reveal r3"><div class="big-number">Process</div><p>The CPU follows instructions and performs calculations and logical operations.</p></div>
+      <div class="card reveal r4"><div class="big-number">Output</div><p>The computer sends the result to a display, speaker, network or storage device.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">02 — Core Components</div>
+      <h2 class="reveal r2">A computer is a <span class="accent">team</span>, not one chip.</h2>
+    </div>
+    <div class="flowbox reveal r3">
+      <div class="node">Input</div><div class="arrow">→</div>
+      <div class="node">RAM</div><div class="arrow">↔</div>
+      <div class="node">CPU</div><div class="arrow">↔</div>
+      <div class="node">Storage</div><div class="arrow">→</div>
+      <div class="node">Output</div>
+    </div>
+    <p class="reveal r4">The motherboard and system buses connect these parts and allow data to move between them.</p>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">03 — CPU</div>
+        <h2 class="reveal r2">The CPU is the main <span class="accent">decision-maker</span>.</h2>
+        <p class="reveal r3">The Central Processing Unit reads instructions, understands them and executes them extremely quickly.</p>
+        <div class="chips reveal r4"><div class="chip">Control Unit</div><div class="chip">ALU</div><div class="chip">Registers</div><div class="chip">Cache</div></div>
+      </div>
+      <div class="card reveal r3">
+        <h3>Fetch → Decode → Execute</h3>
+        <div class="flowbox" style="margin-top:1.2rem">
+          <div class="node">Fetch</div><div class="arrow">→</div>
+          <div class="node">Decode</div><div class="arrow">→</div>
+          <div class="node">Execute</div>
+        </div>
+        <p style="margin-top:1.2rem">This cycle repeats billions of times every second.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">04 — CPU vs GPU</div>
+      <h2 class="reveal r2">Different processors for <span class="accent">different jobs</span>.</h2>
+    </div>
+    <div class="cpu-gpu">
+      <div class="card reveal r3">
+        <h3>CPU — Few powerful cores</h3>
+        <p>Best for general tasks, logic, operating systems and low-latency decisions.</p>
+        <div class="cores cpucores">
+          <div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div>
+          <div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div>
+        </div>
+      </div>
+      <div class="card reveal r4">
+        <h3>GPU — Many smaller cores</h3>
+        <p>Best for parallel work such as graphics, simulations and AI calculations.</p>
+        <div class="cores gpucores" id="gpuCores"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">05 — Memory Hierarchy</div>
+        <h2 class="reveal r2">Fast memory is closer to the CPU.</h2>
+        <p class="reveal r3">Computers balance speed, capacity and cost by using several levels of memory.</p>
+      </div>
+      <div class="card reveal r3">
+        <div><strong>Registers</strong><div class="bar"><span style="width:100%"></span></div></div>
+        <div><strong>CPU Cache</strong><div class="bar"><span style="width:84%"></span></div></div>
+        <div><strong>RAM</strong><div class="bar"><span style="width:56%"></span></div></div>
+        <div><strong>SSD / Storage</strong><div class="bar"><span style="width:28%"></span></div></div>
+        <p style="font-size:.9rem">Higher bar = faster access speed</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">06 — Motherboard & Buses</div>
+      <h2 class="reveal r2">The motherboard is the <span class="accent">communication platform</span>.</h2>
+    </div>
+    <div class="architecture reveal r3">
+      <svg viewBox="0 0 800 360" aria-label="Simplified computer architecture diagram">
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="4" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect x="320" y="135" width="160" height="90" rx="18" fill="#0f2342" stroke="#42e8ff" />
+        <text x="400" y="188" text-anchor="middle" fill="#eef6ff" font-size="26" font-weight="800">CPU</text>
+        <rect x="60" y="45" width="150" height="75" rx="16" fill="#0f1934" stroke="#5f7cff"/>
+        <text x="135" y="88" text-anchor="middle" fill="#eef6ff" font-size="22">RAM</text>
+        <rect x="590" y="45" width="150" height="75" rx="16" fill="#17142f" stroke="#a56dff"/>
+        <text x="665" y="88" text-anchor="middle" fill="#eef6ff" font-size="22">GPU</text>
+        <rect x="60" y="255" width="150" height="75" rx="16" fill="#102538" stroke="#55f2a4"/>
+        <text x="135" y="298" text-anchor="middle" fill="#eef6ff" font-size="22">SSD</text>
+        <rect x="590" y="255" width="150" height="75" rx="16" fill="#2b1530" stroke="#ff68c5"/>
+        <text x="665" y="298" text-anchor="middle" fill="#eef6ff" font-size="22">I/O</text>
+        <path class="flowline" d="M210 82 C280 82 270 160 320 165"/>
+        <path class="flowline" d="M590 82 C520 82 530 160 480 165"/>
+        <path class="flowline" d="M210 292 C280 292 270 205 320 198"/>
+        <path class="flowline" d="M590 292 C520 292 530 205 480 198"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">07 — Parallel Computing</div>
+        <h2 class="reveal r2">Modern performance comes from doing <span class="accent">many things at once</span>.</h2>
+        <p class="reveal r3">Instead of only increasing clock speed, modern systems use multiple cores, threads and specialized processors.</p>
+      </div>
+      <div class="matrix reveal r3" id="matrix"></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">08 — Modern Systems</div>
+      <h2 class="reveal r2">From PCs to <span class="accent">AI computers</span>.</h2>
+    </div>
+    <div class="timeline">
+      <div class="card reveal r2"><div class="year">CPU</div><h3>General computing</h3><p>Runs applications, operating systems and core logic.</p></div>
+      <div class="card reveal r3"><div class="year">GPU</div><h3>Parallel processing</h3><p>Accelerates graphics, scientific workloads and AI.</p></div>
+      <div class="card reveal r4"><div class="year">NPU</div><h3>AI acceleration</h3><p>Specialized for neural-network operations with high efficiency.</p></div>
+      <div class="card reveal r4"><div class="year">SoC</div><h3>Everything together</h3><p>Combines CPU, GPU, memory controllers and more on one chip.</p></div>
+    </div>
+  </section>
+
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">09 — Instruction Set</div>
+        <h2 class="reveal r2">Hardware understands a small set of <span class="accent">machine instructions</span>.</h2>
+        <p class="reveal r3">An Instruction Set Architecture, or ISA, defines what operations a processor can perform and how software communicates with the CPU.</p>
+        <div class="chips reveal r4">
+          <div class="chip">Load</div><div class="chip">Store</div><div class="chip">Add</div><div class="chip">Compare</div><div class="chip">Jump</div>
+        </div>
+      </div>
+      <div class="card reveal r3">
+        <h3>Simple example</h3>
+        <p><strong>LOAD</strong> data → <strong>ADD</strong> values → <strong>STORE</strong> the result.</p>
+        <p>The ISA is the bridge between software instructions and processor hardware.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">10 — Cache Memory</div>
+      <h2 class="reveal r2">Cache keeps important data <span class="accent">close to the CPU</span>.</h2>
+      <p class="reveal r3">It reduces waiting time by storing frequently used information in very fast memory.</p>
+    </div>
+    <div class="grid3">
+      <div class="card reveal r2"><div class="big-number">L1</div><p>Very small and extremely fast. Usually closest to each processor core.</p></div>
+      <div class="card reveal r3"><div class="big-number">L2</div><p>Larger than L1, but slightly slower. Still much faster than RAM.</p></div>
+      <div class="card reveal r4"><div class="big-number">L3</div><p>Larger shared cache that can be used by several CPU cores.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">11 — Clock & Performance</div>
+        <h2 class="reveal r2">GHz matters, but it is <span class="accent">not everything</span>.</h2>
+        <p class="reveal r3">Real performance depends on clock speed, number of cores, cache, memory speed, architecture and software optimization.</p>
+      </div>
+      <div class="card reveal r3">
+        <h3>Performance depends on several factors</h3>
+        <div><strong>Clock speed</strong><div class="bar"><span style="width:82%"></span></div></div>
+        <div><strong>Core count</strong><div class="bar"><span style="width:72%"></span></div></div>
+        <div><strong>Cache & memory</strong><div class="bar"><span style="width:68%"></span></div></div>
+        <div><strong>Software optimization</strong><div class="bar"><span style="width:88%"></span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div>
+      <div class="eyebrow reveal">12 — Bottlenecks</div>
+      <h2 class="reveal r2">The slowest component can limit the <span class="accent">whole system</span>.</h2>
+    </div>
+    <div class="flowbox reveal r3">
+      <div class="node">CPU</div><div class="arrow">→</div>
+      <div class="node">RAM</div><div class="arrow">→</div>
+      <div class="node">GPU</div><div class="arrow">→</div>
+      <div class="node">Storage</div>
+    </div>
+    <div class="grid3">
+      <div class="card reveal r2"><h3>CPU bottleneck</h3><p>The processor cannot prepare tasks fast enough.</p></div>
+      <div class="card reveal r3"><h3>Memory bottleneck</h3><p>Slow or insufficient RAM delays programs and active data.</p></div>
+      <div class="card reveal r4"><h3>Storage bottleneck</h3><p>Slow storage increases loading and file-access time.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">13 — Why Architecture Matters</div>
+        <h2 class="reveal r2">Different computers need different <span class="accent">design priorities</span>.</h2>
+        <p class="reveal r3">Architecture is chosen according to the task: gaming, mobile computing, servers, AI, embedded devices or supercomputers.</p>
+      </div>
+      <div class="summary-list reveal r3">
+        <div class="summary-item"><div class="check">✓</div><div>Gaming: strong CPU and GPU cooperation.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div>Phones: high efficiency and low power use.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div>Servers: reliability, memory and parallel workloads.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div>AI systems: specialized accelerators for matrix calculations.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow reveal">14 — Summary & Questions</div>
+        <h2 class="reveal r2">The computer works because every part has a <span class="accent">special role</span>.</h2>
+      </div>
+      <div class="summary-list reveal r3">
+        <div class="summary-item"><div class="check">✓</div><div><strong>CPU:</strong> controls and executes general instructions.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div><strong>GPU:</strong> performs large parallel workloads.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div><strong>RAM:</strong> stores active data temporarily.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div><strong>Storage:</strong> keeps data long-term.</div></div>
+        <div class="summary-item"><div class="check">✓</div><div><strong>Motherboard & buses:</strong> connect everything together.</div></div>
+      </div>
+    </div>
+  </section>
+
+
+</div>
+
+<div class="count" id="count">01 / 15</div>
+<div class="controls">
+  <button id="prevBtn">← Previous</button>
+  <button id="nextBtn">Next →</button>
+  <button id="fsBtn">Fullscreen</button>
+</div>
+<div class="progress" id="progress"></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let index=0;
+
+  // Build repeated visual elements
+  const gpu=document.getElementById('gpuCores');
+  for(let i=0;i<60;i++){const d=document.createElement('div');d.className='mini-core';gpu.appendChild(d);}
+  const matrix=document.getElementById('matrix');
+  for(let i=0;i<64;i++){const d=document.createElement('div');d.className='cell';d.style.animationDelay=(i%9)*0.11+'s';matrix.appendChild(d);}
+
+  function showSlide(n){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,i)=>{
+      s.classList.remove('active','prev');
+      if(i<n) s.classList.add('prev');
+      if(i===n) s.classList.add('active');
+    });
+    index=n;
+    document.getElementById('count').textContent=String(index+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    document.getElementById('progress').style.width=((index+1)/slides.length*100)+'%';
+  }
+
+  function next(){showSlide(index+1)}
+  function prev(){showSlide(index-1)}
+
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('fsBtn').addEventListener('click',()=>{
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
+
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next();}
+    if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev();}
+    if(e.key.toLowerCase()==='f'){
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    if(e.key==='Home') showSlide(0);
+    if(e.key==='End') showSlide(slides.length-1);
+  });
+
+  let touchX=0;
+  document.addEventListener('touchstart',e=>touchX=e.changedTouches[0].clientX,{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-touchX;
+    if(dx<-55) next();
+    if(dx>55) prev();
+  },{passive:true});
+
+  showSlide(0);
+</script>
+</body>
+</html>
