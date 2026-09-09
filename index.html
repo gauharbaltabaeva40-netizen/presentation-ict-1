@@ -118,6 +118,176 @@
   .speaker-note{
     position:absolute;right:7vw;bottom:7vh;font-size:.78rem;color:#617894;border:1px solid #1b2a45;border-radius:10px;padding:.5rem .7rem;background:#07101eaa
   }
+
+  body{perspective:1400px}
+  .bg-particles,
+  .bg-glow{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+  }
+  .bg-glow{
+    background:
+      radial-gradient(circle at 20% 20%, rgba(66,232,255,.08), transparent 22%),
+      radial-gradient(circle at 80% 18%, rgba(165,109,255,.08), transparent 24%),
+      radial-gradient(circle at 50% 80%, rgba(85,242,164,.06), transparent 24%);
+    animation:bgFloat 14s ease-in-out infinite alternate;
+    filter:blur(6px);
+  }
+  @keyframes bgFloat{
+    0%{transform:translate3d(0,0,0) scale(1)}
+    100%{transform:translate3d(0,-18px,0) scale(1.04)}
+  }
+
+  .deck{transform-style:preserve-3d; z-index:1}
+  .slide{
+    transform-origin:center center;
+    transform:translateX(80px) rotateY(-10deg) scale(.97);
+    z-index:1;
+  }
+  .slide.active{
+    transform:translateX(0) rotateY(0deg) scale(1);
+  }
+  .slide.prev{
+    transform:translateX(-80px) rotateY(10deg) scale(.97);
+  }
+
+  .card, .node, .chip, .architecture{
+    transform-style:preserve-3d;
+    transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  .card{
+    box-shadow:0 20px 55px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .card:hover{
+    transform:translateY(-8px) rotateX(5deg) rotateY(-5deg) translateZ(10px);
+    border-color:rgba(66,232,255,.45);
+    box-shadow:0 28px 65px rgba(0,0,0,.36), 0 0 22px rgba(66,232,255,.12);
+  }
+  .node:hover, .chip:hover{
+    transform:translateY(-3px) translateZ(8px);
+  }
+
+  .scene3d{
+    transform-style:preserve-3d;
+    perspective:1200px;
+  }
+  .chip3d{
+    position:absolute; inset:31%;
+    transform-style:preserve-3d;
+    animation:chipFloat 5s ease-in-out infinite;
+  }
+  .chip-face{
+    position:absolute; inset:0; border-radius:24px;
+    display:grid; place-items:center;
+    font-weight:900; letter-spacing:.08em;
+    border:1px solid #2a5288;
+    box-shadow:0 0 45px rgba(66,232,255,.18), inset 0 0 22px rgba(66,232,255,.08);
+  }
+  .chip-front{
+    background:linear-gradient(135deg,#112347,#091224);
+    color:#eef6ff;
+    font-size:1.35rem;
+    transform:translateZ(26px);
+  }
+  .chip-top{
+    background:linear-gradient(135deg,#18335d,#0f1f3d);
+    transform:rotateX(90deg) translateZ(26px);
+    transform-origin:top center;
+  }
+  .chip-side{
+    background:linear-gradient(180deg,#0a1529,#08101f);
+    transform:rotateY(90deg) translateZ(26px);
+    transform-origin:right center;
+  }
+  .ring{
+    position:absolute; border:1px solid rgba(66,232,255,.25); border-radius:50%;
+    left:50%; top:50%; transform-style:preserve-3d;
+  }
+  .ring-1{
+    width:88%; height:88%; transform:translate(-50%,-50%) rotateX(72deg);
+    animation:spin3d 12s linear infinite;
+  }
+  .ring-2{
+    width:62%; height:62%; transform:translate(-50%,-50%) rotateY(72deg);
+    border-color:rgba(165,109,255,.28);
+    animation:spin3dRev 9s linear infinite;
+  }
+  @keyframes chipFloat{
+    0%,100%{transform:rotateX(12deg) rotateY(-18deg) translateY(0)}
+    50%{transform:rotateX(-8deg) rotateY(18deg) translateY(-16px)}
+  }
+  @keyframes spin3d{to{transform:translate(-50%,-50%) rotateX(72deg) rotateZ(360deg)}}
+  @keyframes spin3dRev{to{transform:translate(-50%,-50%) rotateY(72deg) rotateZ(-360deg)}}
+
+  .hero-orbit::after{
+    content:"";
+    position:absolute; left:50%; top:50%; width:50%; height:50%;
+    transform:translate(-50%,-50%) translateZ(-20px);
+    background:radial-gradient(circle, rgba(66,232,255,.18), transparent 68%);
+    filter:blur(22px);
+  }
+
+  .bar{
+    position:relative; overflow:hidden;
+  }
+  .bar > span::after{
+    content:""; position:absolute; inset:0; width:35%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+    animation:scan 2.8s linear infinite;
+  }
+  @keyframes scan{
+    from{transform:translateX(-220%)}
+    to{transform:translateX(420%)}
+  }
+
+  .matrix .cell{
+    box-shadow:0 0 0 rgba(0,0,0,0);
+  }
+  .matrix .cell:hover{
+    transform:translateZ(10px) scale(1.05);
+    box-shadow:0 0 16px rgba(66,232,255,.18);
+  }
+
+  .reveal{will-change:transform, opacity}
+  .active .reveal{
+    animation:rise3d .7s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise3d{
+    from{opacity:0; transform:translateY(24px) translateZ(-25px) rotateX(10deg)}
+    to{opacity:1; transform:translateY(0) translateZ(0) rotateX(0)}
+  }
+
+  .particle{
+    position:absolute; width:3px; height:3px; border-radius:50%;
+    background:rgba(120,220,255,.85);
+    box-shadow:0 0 12px rgba(66,232,255,.55);
+    animation:particleMove linear infinite;
+  }
+  .particle.alt{background:rgba(190,125,255,.75); box-shadow:0 0 12px rgba(165,109,255,.45)}
+  @keyframes particleMove{
+    from{transform:translate3d(0,0,0) scale(.7); opacity:0}
+    10%{opacity:.7}
+    90%{opacity:.45}
+    to{transform:translate3d(var(--dx), calc(-1 * var(--dy)), 0) scale(1.25); opacity:0}
+  }
+
+  .parallax{
+    transition:transform .15s linear;
+    will-change:transform;
+  }
+
+  .controls{
+    box-shadow:0 8px 26px rgba(0,0,0,.24);
+  }
+  button:hover{
+    opacity:1;
+    transform:translateY(-1px) scale(1.03);
+  }
+
+  @media (max-width:900px){
+    .chip3d{inset:34%}
+    .ring-1{width:96%; height:96%}
+  }
+
   @media (max-width:900px){
     .slide{padding:9vh 6vw 11vh}
     .grid2,.cpu-gpu,.timeline,.grid3{grid-template-columns:1fr}
@@ -129,6 +299,8 @@
 </style>
 </head>
 <body>
+<div class="bg-particles" id="bgParticles"></div>
+<div class="bg-glow"></div>
 <div class="deck" id="deck">
 
   <section class="slide active">
@@ -138,10 +310,16 @@
         <h1 class="reveal r2">Inside the <span class="accent">Brain of a Computer</span></h1>
         <p class="reveal r3">How CPU, memory, storage, GPU and buses work together to turn instructions into results.</p>
       </div>
-      <div class="hero-orbit reveal r3">
+      <div class="hero-orbit scene3d reveal r3 parallax" data-depth="18">
         <div class="orbit"></div><div class="orbit"></div>
         <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
-        <div class="core">CPU</div>
+        <div class="chip3d">
+          <div class="chip-face chip-front">CPU</div>
+          <div class="chip-face chip-top"></div>
+          <div class="chip-face chip-side"></div>
+        </div>
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
       </div>
     </div>
   </section>
@@ -153,9 +331,9 @@
       <p class="reveal r3">It is the way computer components are organized and connected so they can process data efficiently.</p>
     </div>
     <div class="grid3">
-      <div class="card reveal r2"><div class="big-number">Input</div><p>Keyboard, mouse, camera and sensors send data into the system.</p></div>
-      <div class="card reveal r3"><div class="big-number">Process</div><p>The CPU follows instructions and performs calculations and logical operations.</p></div>
-      <div class="card reveal r4"><div class="big-number">Output</div><p>The computer sends the result to a display, speaker, network or storage device.</p></div>
+      <div class="card reveal r2 parallax" data-depth="8"><div class="big-number">Input</div><p>Keyboard, mouse, camera and sensors send data into the system.</p></div>
+      <div class="card reveal r3 parallax" data-depth="10"><div class="big-number">Process</div><p>The CPU follows instructions and performs calculations and logical operations.</p></div>
+      <div class="card reveal r4 parallax" data-depth="12"><div class="big-number">Output</div><p>The computer sends the result to a display, speaker, network or storage device.</p></div>
     </div>
   </section>
 
@@ -182,7 +360,7 @@
         <p class="reveal r3">The Central Processing Unit reads instructions, understands them and executes them extremely quickly.</p>
         <div class="chips reveal r4"><div class="chip">Control Unit</div><div class="chip">ALU</div><div class="chip">Registers</div><div class="chip">Cache</div></div>
       </div>
-      <div class="card reveal r3">
+      <div class="card reveal r3 parallax" data-depth="10">
         <h3>Fetch → Decode → Execute</h3>
         <div class="flowbox" style="margin-top:1.2rem">
           <div class="node">Fetch</div><div class="arrow">→</div>
@@ -200,7 +378,7 @@
       <h2 class="reveal r2">Different processors for <span class="accent">different jobs</span>.</h2>
     </div>
     <div class="cpu-gpu">
-      <div class="card reveal r3">
+      <div class="card reveal r3 parallax" data-depth="10">
         <h3>CPU — Few powerful cores</h3>
         <p>Best for general tasks, logic, operating systems and low-latency decisions.</p>
         <div class="cores cpucores">
@@ -208,7 +386,7 @@
           <div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div><div class="mini-core"></div>
         </div>
       </div>
-      <div class="card reveal r4">
+      <div class="card reveal r4 parallax" data-depth="12">
         <h3>GPU — Many smaller cores</h3>
         <p>Best for parallel work such as graphics, simulations and AI calculations.</p>
         <div class="cores gpucores" id="gpuCores"></div>
@@ -223,7 +401,7 @@
         <h2 class="reveal r2">Fast memory is closer to the CPU.</h2>
         <p class="reveal r3">Computers balance speed, capacity and cost by using several levels of memory.</p>
       </div>
-      <div class="card reveal r3">
+      <div class="card reveal r3 parallax" data-depth="10">
         <div><strong>Registers</strong><div class="bar"><span style="width:100%"></span></div></div>
         <div><strong>CPU Cache</strong><div class="bar"><span style="width:84%"></span></div></div>
         <div><strong>RAM</strong><div class="bar"><span style="width:56%"></span></div></div>
@@ -238,7 +416,7 @@
       <div class="eyebrow reveal">06 — Motherboard & Buses</div>
       <h2 class="reveal r2">The motherboard is the <span class="accent">communication platform</span>.</h2>
     </div>
-    <div class="architecture reveal r3">
+    <div class="architecture reveal r3 parallax" data-depth="8">
       <svg viewBox="0 0 800 360" aria-label="Simplified computer architecture diagram">
         <defs>
           <filter id="glow"><feGaussianBlur stdDeviation="4" result="c"/><feMerge><feMergeNode in="c"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -268,7 +446,7 @@
         <h2 class="reveal r2">Modern performance comes from doing <span class="accent">many things at once</span>.</h2>
         <p class="reveal r3">Instead of only increasing clock speed, modern systems use multiple cores, threads and specialized processors.</p>
       </div>
-      <div class="matrix reveal r3" id="matrix"></div>
+      <div class="matrix reveal r3 parallax" data-depth="8" id="matrix"></div>
     </div>
   </section>
 
@@ -278,10 +456,10 @@
       <h2 class="reveal r2">From PCs to <span class="accent">AI computers</span>.</h2>
     </div>
     <div class="timeline">
-      <div class="card reveal r2"><div class="year">CPU</div><h3>General computing</h3><p>Runs applications, operating systems and core logic.</p></div>
-      <div class="card reveal r3"><div class="year">GPU</div><h3>Parallel processing</h3><p>Accelerates graphics, scientific workloads and AI.</p></div>
-      <div class="card reveal r4"><div class="year">NPU</div><h3>AI acceleration</h3><p>Specialized for neural-network operations with high efficiency.</p></div>
-      <div class="card reveal r4"><div class="year">SoC</div><h3>Everything together</h3><p>Combines CPU, GPU, memory controllers and more on one chip.</p></div>
+      <div class="card reveal r2 parallax" data-depth="8"><div class="year">CPU</div><h3>General computing</h3><p>Runs applications, operating systems and core logic.</p></div>
+      <div class="card reveal r3 parallax" data-depth="10"><div class="year">GPU</div><h3>Parallel processing</h3><p>Accelerates graphics, scientific workloads and AI.</p></div>
+      <div class="card reveal r4 parallax" data-depth="12"><div class="year">NPU</div><h3>AI acceleration</h3><p>Specialized for neural-network operations with high efficiency.</p></div>
+      <div class="card reveal r4 parallax" data-depth="12"><div class="year">SoC</div><h3>Everything together</h3><p>Combines CPU, GPU, memory controllers and more on one chip.</p></div>
     </div>
   </section>
 
@@ -296,7 +474,7 @@
           <div class="chip">Load</div><div class="chip">Store</div><div class="chip">Add</div><div class="chip">Compare</div><div class="chip">Jump</div>
         </div>
       </div>
-      <div class="card reveal r3">
+      <div class="card reveal r3 parallax" data-depth="10">
         <h3>Simple example</h3>
         <p><strong>LOAD</strong> data → <strong>ADD</strong> values → <strong>STORE</strong> the result.</p>
         <p>The ISA is the bridge between software instructions and processor hardware.</p>
@@ -311,9 +489,9 @@
       <p class="reveal r3">It reduces waiting time by storing frequently used information in very fast memory.</p>
     </div>
     <div class="grid3">
-      <div class="card reveal r2"><div class="big-number">L1</div><p>Very small and extremely fast. Usually closest to each processor core.</p></div>
-      <div class="card reveal r3"><div class="big-number">L2</div><p>Larger than L1, but slightly slower. Still much faster than RAM.</p></div>
-      <div class="card reveal r4"><div class="big-number">L3</div><p>Larger shared cache that can be used by several CPU cores.</p></div>
+      <div class="card reveal r2 parallax" data-depth="8"><div class="big-number">L1</div><p>Very small and extremely fast. Usually closest to each processor core.</p></div>
+      <div class="card reveal r3 parallax" data-depth="10"><div class="big-number">L2</div><p>Larger than L1, but slightly slower. Still much faster than RAM.</p></div>
+      <div class="card reveal r4 parallax" data-depth="12"><div class="big-number">L3</div><p>Larger shared cache that can be used by several CPU cores.</p></div>
     </div>
   </section>
 
@@ -324,7 +502,7 @@
         <h2 class="reveal r2">GHz matters, but it is <span class="accent">not everything</span>.</h2>
         <p class="reveal r3">Real performance depends on clock speed, number of cores, cache, memory speed, architecture and software optimization.</p>
       </div>
-      <div class="card reveal r3">
+      <div class="card reveal r3 parallax" data-depth="10">
         <h3>Performance depends on several factors</h3>
         <div><strong>Clock speed</strong><div class="bar"><span style="width:82%"></span></div></div>
         <div><strong>Core count</strong><div class="bar"><span style="width:72%"></span></div></div>
@@ -346,9 +524,9 @@
       <div class="node">Storage</div>
     </div>
     <div class="grid3">
-      <div class="card reveal r2"><h3>CPU bottleneck</h3><p>The processor cannot prepare tasks fast enough.</p></div>
-      <div class="card reveal r3"><h3>Memory bottleneck</h3><p>Slow or insufficient RAM delays programs and active data.</p></div>
-      <div class="card reveal r4"><h3>Storage bottleneck</h3><p>Slow storage increases loading and file-access time.</p></div>
+      <div class="card reveal r2 parallax" data-depth="8"><h3>CPU bottleneck</h3><p>The processor cannot prepare tasks fast enough.</p></div>
+      <div class="card reveal r3 parallax" data-depth="10"><h3>Memory bottleneck</h3><p>Slow or insufficient RAM delays programs and active data.</p></div>
+      <div class="card reveal r4 parallax" data-depth="12"><h3>Storage bottleneck</h3><p>Slow storage increases loading and file-access time.</p></div>
     </div>
   </section>
 
@@ -445,6 +623,64 @@
     if(dx<-55) next();
     if(dx>55) prev();
   },{passive:true});
+
+
+  // Ambient particles
+  const bg=document.getElementById('bgParticles');
+  if(bg){
+    const total = window.innerWidth < 900 ? 28 : 46;
+    for(let i=0;i<total;i++){
+      const p=document.createElement('span');
+      p.className='particle'+(i%4===0?' alt':'');
+      const x=Math.random()*100;
+      const y=Math.random()*100;
+      const dx=(Math.random()*120-60).toFixed(1)+'px';
+      const dy=(80+Math.random()*180).toFixed(1)+'px';
+      const dur=(8+Math.random()*10).toFixed(2)+'s';
+      const delay=(-Math.random()*12).toFixed(2)+'s';
+      p.style.left=x+'%';
+      p.style.top=y+'%';
+      p.style.setProperty('--dx',dx);
+      p.style.setProperty('--dy',dy);
+      p.style.animationDuration=dur;
+      p.style.animationDelay=delay;
+      bg.appendChild(p);
+    }
+  }
+
+  // Mouse parallax on active slide
+  let mx=0,my=0;
+  function applyParallax(x,y){
+    const active=document.querySelector('.slide.active');
+    if(!active) return;
+    active.querySelectorAll('.parallax').forEach(el=>{
+      const depth=Number(el.dataset.depth||8);
+      const tx=(x/window.innerWidth - 0.5) * depth;
+      const ty=(y/window.innerHeight - 0.5) * depth;
+      if(el.classList.contains('scene3d')){
+        el.style.transform=`translate3d(${tx}px, ${ty}px, 0)`;
+      }else{
+        el.style.transform=`translate3d(${tx}px, ${ty}px, 0)`;
+      }
+    });
+  }
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX; my=e.clientY;
+    applyParallax(mx,my);
+  });
+
+  // Gentle tilt on cards
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const px=(e.clientX-r.left)/r.width - .5;
+      const py=(e.clientY-r.top)/r.height - .5;
+      card.style.transform=`translateY(-4px) rotateX(${(-py*8).toFixed(2)}deg) rotateY(${(px*10).toFixed(2)}deg)`;
+    });
+    card.addEventListener('mouseleave',()=>{
+      card.style.transform='';
+    });
+  });
 
   showSlide(0);
 </script>
